@@ -55,8 +55,7 @@ def press(btn):
         IR_fitter.PlotSuperposition(parameters,composite_spectrum, component_spectra,
                           k_min=k_min,
                           k_max=k_max,
-                          interactive_plot=True,
-                          output_folder=os.getcwd())
+                          interactive_plot=True)
                           
 def GetSpectrumWithCurrentSettings(name,filepath,thickness=None,normalize_by_thickness=False):
     spectrum = IR_fitter.absorbance_spectrum(name=name,
