@@ -25,12 +25,13 @@ import jcamp
 # It saves the spectrum plot with fit in the working directory
 
 class absorbance_spectrum():     
-    def __init__(self,name,datafile_path,thickness=None,normalize_by_thickness=False,k_min=-np.inf,k_max=np.inf):
+    def __init__(self,name,datafile_path,thickness=None,normalize_by_thickness=False,k_min=-np.inf,k_max=np.inf,r=1E8,p=0.005):
         self.name = name
         self.datafile_path = datafile_path
         self.thickness = thickness # nm
         self.normalize_by_thickness = normalize_by_thickness
         self.k_min,self.k_max = k_min, k_max
+        self.r, self.p = r, p
         self.wavenumber, self.absorbance = self.ReadJcampFile()
         if self.normalize_by_thickness:
             self.absorbance /= self.thickness
@@ -59,7 +60,7 @@ class absorbance_spectrum():
         else:
             wavenumber,absorbance = jcamp_dict['x'], jcamp_dict['y']
         return wavenumber, absorbance 
-    def GetBaselineAls(self,lam=1E8, p=0.005, i_max=100):
+    def GetBaselineAls(self,i_max=100):
         A = self.absorbance_cut
         L = len(A)
         D = sparse.csc_matrix(np.diff(np.eye(L), 2))
@@ -67,9 +68,9 @@ class absorbance_spectrum():
         w_new = np.ones(L)
         for i in range(i_max):
             W = sparse.spdiags(w, 0, L, L)
-            Z = W + lam * D.dot(D.transpose())
+            Z = W + self.r * D.dot(D.transpose())
             z = sparse.linalg.spsolve(Z, w*A)
-            w_new = p * (A > z) + (1-p) * (A < z)
+            w_new = self.p * (A > z) + (1-self.p) * (A < z)
             if np.all(w_new == w):
                 print('Baseline calculation converged after {} iterations'.format(i))
                 return z
