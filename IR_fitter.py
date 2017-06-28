@@ -199,12 +199,12 @@ def PlotSuperposition(parameters,composite_sample, pure_samples,k_min=None,k_max
 
 if __name__ == '__main__':
     EGDMA = absorbance_spectrum(name='EGDMA',
-                   datafile_path=os.path.join('test_spectra','EGDMA_292nm.DX'),
+                   datafile_path=os.path.join('test_spectra','EGDMA_292_nm.DX'),
                    thickness=292,
                    normalize_by_thickness=True,
                    k_min = 800)
     MAA = absorbance_spectrum(name='MAA',
-                 datafile_path=os.path.join('test_spectra','MAA_2020nm.DX'),
+                 datafile_path=os.path.join('test_spectra','MAA_2020_nm.DX'),
                  thickness=2020,
                  normalize_by_thickness=True,
                  k_min = 800)
