@@ -126,7 +126,8 @@ def PlotAbsorbances(samples,plot_baseline=True,plot_original=True,plot_bscorrect
             ax0.plot(s.wavenumber_cut,s.baseline*1E4,label='baseline',color='r') 
         if plot_bscorrected:
             ax0.plot(s.wavenumber_cut,(s.absorbance_cut-s.baseline)*1E4,label=s.name+'_corrected') 
-        plt.legend()
+        legend = plt.legend()    
+        legend.draggable(True)
         plt.title(s.name)
         ax0.set_xlabel('wavenumber / cm$^{-1}$')
         ax0.set_ylabel('absorbance / 10$^{-4}$nm$^{-1}$')
