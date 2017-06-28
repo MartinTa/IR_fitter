@@ -130,7 +130,7 @@ def PlotAbsorbances(samples,plot_baseline=True,plot_original=True,plot_bscorrect
         plt.title(s.name)
         ax0.set_xlabel('wavenumber / cm$^{-1}$')
         ax0.set_ylabel('absorbance / 10$^{-4}$nm$^{-1}$')
-        plt.show(block=False)
+        plt.show()#block=False) block=False, not working yet under linux
     
 def GetCoefficients(composite_sample, pure_samples,k_min=-np.inf,k_max=np.inf):
     logical = np.logical_and(composite_sample.wavenumber_cut>k_min,composite_sample.wavenumber_cut<k_max)
