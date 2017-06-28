@@ -34,6 +34,7 @@ def press(btn):
         filepath = app.getEntry("e1")
         name = os.path.split(filepath)[1]
         spectrum = GetSpectrumWithCurrentSettings(name,filepath)
+        IR_fitter.PlotAbsorbances(spectrum)
     elif btn == "quantify":
         k_min = float(eval(app.getEntry(k_min_name_quantification)))
         k_max = float(eval(app.getEntry(k_max_name_quantification)))
