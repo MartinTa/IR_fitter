@@ -158,11 +158,11 @@ def CalculateSuperposition(composite_sample, pure_samples,thickness_error_absolu
         print('d_{} = {}'.format(s.name,GetErrorString(d_vec[k],d_error_vec[k])))
         print('F_{} = {}'.format(s.name,GetErrorString(F_vec[k],F_error_vec[k])))
     print('d = {}'.format(GetErrorString(np.sum(d_vec),np.sum(d_error_vec))))    
-    parameters = F_vec, F_error_vec, d_vec, d_error_vec
-    return parameters 
+    fit_results = {"names":[p.name for p in pure_samples],"F_vec":F_vec, "F_error_vec":F_error_vec, "d_vec":d_vec,"d_error_vec": d_error_vec}
+    return fit_results 
     
-def PlotSuperposition(parameters,composite_sample, pure_samples,k_min=None,k_max=None,interactive_plot=False,output_folder=None):
-    F_vec, F_error_vec, d_vec, d_error_vec = parameters
+def PlotSuperposition(fit_results,composite_sample, pure_samples,k_min=None,k_max=None,interactive_plot=False,output_folder=None):
+    d_vec = fit_results["d_vec"]
     if not interactive_plot:
         plt.ioff()
         plt.close()
@@ -216,10 +216,9 @@ if __name__ == '__main__':
     k_min = 1000
     k_max = 2000
     pure_sample_spectra = [MAA,EGDMA]
-    parameters = CalculateSuperposition(composite_spectrum, pure_sample_spectra,k_min=k_min, k_max=k_max)
-    PlotSuperposition(parameters,composite_spectrum, pure_sample_spectra,
+    fit_results = CalculateSuperposition(composite_spectrum, pure_sample_spectra,k_min=k_min, k_max=k_max)
+    PlotSuperposition(fit_results,composite_spectrum, pure_sample_spectra,
                       k_min=k_min,
                       k_max=k_max,
                       interactive_plot=True,
                       output_folder=os.getcwd())
-                      
