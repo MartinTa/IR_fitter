@@ -9,6 +9,7 @@ Created on Tue Jun 27 08:57:41 2017
 from appJar import gui
 import IR_fitter, os
 import numpy as np
+import sys
 
 app = gui()
 app.setGeometry(600,500)
@@ -52,8 +53,15 @@ def press(btn):
         filepath = app.getEntry("e1")
         name = os.path.split(filepath)[1]
         composite_spectrum = GetSpectrumWithCurrentSettings(name,filepath)
-        parameters = IR_fitter.CalculateSuperposition(composite_spectrum, component_spectra,k_min=k_min, k_max=k_max)
-        IR_fitter.PlotSuperposition(parameters,composite_spectrum, component_spectra,
+        results = IR_fitter.CalculateSuperposition(composite_spectrum, component_spectra,k_min=k_min, k_max=k_max)
+        d_vec,d_error_vec,F_vec,F_error_vec = results["d_vec"],results["d_error_vec"],results["F_vec"],results["F_error_vec"]
+        txt_list = ['Superposition of sample {} calculated:'.format(composite_spectrum.name)]
+        for k,s in enumerate(component_spectra):
+            txt_list.append('d_{} = {}'.format(s.name,IR_fitter.GetErrorString(d_vec[k],d_error_vec[k])))
+            txt_list.append('F_{} = {}'.format(s.name,IR_fitter.GetErrorString(F_vec[k],F_error_vec[k])))
+        txt_list.append('d = {}'.format(IR_fitter.GetErrorString(np.sum(d_vec),np.sum(d_error_vec)))) 
+        app.setMessage("mess",os.linesep.join(txt_list))
+        IR_fitter.PlotSuperposition(results,composite_spectrum, component_spectra,
                           k_min=k_min,
                           k_max=k_max,
                           interactive_plot=True)
@@ -136,15 +144,21 @@ app.addLabelEntry(k_max_name_quantification,row+1,0)
 app.setEntry(k_max_name_quantification, "2000")
 app.stopLabelFrame()
 
-#app.stopTab()
-#app.startTab("output")
-#app.setSticky("nw")
-#app.setExpand("both")
-#app.setStretch("column")
-#app.addMessage("mess","initial message")
+app.stopTab()
+app.startTab("output")
+app.setSticky("nw")
+app.setExpand("both")
+app.setStretch("column")
+app.addEmptyMessage("mess")
+
+#class Output():
+#    def write(self,txt):
+#        app.setMessage("mess",str(txt))
 #
-##.setMessage(title, text)
-#
+##app.setMessage("mess", "du?")
+#out = Output()
+#sys.stdout=out
+#print('hihi')
 app.stopTab()
 app.stopTabbedFrame()
 app.go()
