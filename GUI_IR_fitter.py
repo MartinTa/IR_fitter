@@ -68,7 +68,7 @@ class Application():
         self.quantify_export_button.bind("<Leave>",lambda event: self.status.set(""))
         ## tab2
         self.tab2.columnconfigure(0, weight=1)
-        self.labelframe_baseline=ttk.LabelFrame(self.tab2,text="Baseline Settings")
+        self.labelframe_baseline=tk.LabelFrame(self.tab2,text="Baseline Settings",background='white')
         self.labelframe_baseline.grid(row=0,column=0,sticky=tk.N+tk.S+tk.E+tk.W)
         self.labelframe_baseline.rowconfigure(0,weight=1)
         self.labelframe_baseline.rowconfigure(1,weight=1)
@@ -98,7 +98,7 @@ class Application():
         self.p.insert(0,"0.005")
         self.p.grid(row=1,column=4,sticky=tk.N+tk.S+tk.E+tk.W)        
         
-        self.labelframe_quantification=ttk.LabelFrame(self.tab2,text="Quantification Settings")
+        self.labelframe_quantification=tk.LabelFrame(self.tab2,text="Quantification Settings",background='white')
         self.labelframe_quantification.grid(row=1,column=0,sticky=tk.N+tk.S+tk.E+tk.W)
         self.labelframe_quantification.rowconfigure(0,weight=1)
         self.labelframe_quantification.columnconfigure(0,weight=1)
