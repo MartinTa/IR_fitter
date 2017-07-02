@@ -11,12 +11,11 @@ from tkinter import filedialog
 import numpy as np
 import os
 
-
 class Application():
     def __init__(self,parent):
         self.parent = parent
-        self.note = ttk.Notebook(self.parent,width=500,height=300)
-        self.tab1 = tk.Frame(self.note,background="red")
+        self.note = ttk.Notebook(self.parent,width=650,height=300)
+        self.tab1 = tk.Frame(self.note)
         self.tab2 = tk.Frame(self.note)
         self.tab3 = tk.Frame(self.note)
         self.createWidgets()
@@ -41,11 +40,11 @@ class Application():
         self.listbox.grid(row=0,columnspan=6,column=0,sticky=tk.N+tk.S+tk.E+tk.W)
         
         self.status = tk.StringVar()
-        self.statusline = tk.Label(self.tab1,textvariable=self.status)
-        self.statusline.grid(row=2,column=0,columnspan=4,sticky=tk.N+tk.S+tk.E+tk.W)
+        self.statusline = tk.Label(self.tab1,textvariable=self.status,height=2,wraplength=650)
+        self.statusline.grid(row=2,column=0,columnspan=6,sticky=tk.N+tk.S+tk.E+tk.W)
         self.browseButton = tk.Button(self.tab1, text='browse/add',command=self.BrowseClick)
         self.browseButton.grid(row=1, column=0,sticky=tk.N+tk.S+tk.E+tk.W)
-        self.browseButton.bind("<Enter>",lambda event: self.status.set("browse for file"))
+        self.browseButton.bind("<Enter>",lambda event: self.status.set("browse for spectrum files (.DX or .DPT) and add them to list"))
         self.browseButton.bind("<Leave>",lambda event: self.status.set(""))
         self.removeButton = tk.Button(self.tab1, text='remove',command=self.RemoveClick)
         self.removeButton.grid(row=1, column=1,sticky=tk.N+tk.S+tk.E+tk.W)
@@ -55,14 +54,18 @@ class Application():
         self.plotButton.grid(row=1, column=2,sticky=tk.N+tk.S+tk.E+tk.W)
         self.plotButton.bind("<Enter>",lambda event: self.status.set("plot spectrum and baseline of selected files"))
         self.plotButton.bind("<Leave>",lambda event: self.status.set(""))
-        self.exportAsciiButton = tk.Button(self.tab1, text='export csv',command=self.ExportCsvClick)
-        self.exportAsciiButton.grid(row=1, column=2,sticky=tk.N+tk.S+tk.E+tk.W)
-        self.exportAsciiButton.bind("<Enter>",lambda event: self.status.set("export spectrum and baseline of selected files as csv"))
-        self.exportAsciiButton.bind("<Leave>",lambda event: self.status.set(""))
-        self.quantifyButton = tk.Button(self.tab1, text='quantify',command=self.QuantifyClick)
-        self.quantifyButton.grid(row=1, column=3,sticky=tk.N+tk.S+tk.E+tk.W)
-        self.quantifyButton.bind("<Enter>",lambda event: self.status.set("quantify selected composit spectrum"))
-        self.quantifyButton.bind("<Leave>",lambda event: self.status.set(""))
+        self.exportCsvButton = tk.Button(self.tab1, text='export csv',command=self.ExportCsvClick)
+        self.exportCsvButton.grid(row=1, column=3,sticky=tk.N+tk.S+tk.E+tk.W)
+        self.exportCsvButton.bind("<Enter>",lambda event: self.status.set("export spectrum and baseline of each selected file as csv (only within baseline wavenumbers)"))
+        self.exportCsvButton.bind("<Leave>",lambda event: self.status.set(""))
+        self.quantify_plot_button = tk.Button(self.tab1, text='quantify/plot',command=self.QuantifyPlotClick)
+        self.quantify_plot_button.grid(row=1, column=4,sticky=tk.N+tk.S+tk.E+tk.W)
+        self.quantify_plot_button.bind("<Enter>",lambda event: self.status.set("quantify and plot selected composit spectrum"))
+        self.quantify_plot_button.bind("<Leave>",lambda event: self.status.set(""))
+        self.quantify_export_button = tk.Button(self.tab1, text='quantify/plot/export',command=self.QuantifyExportClick)
+        self.quantify_export_button.grid(row=1, column=5,sticky=tk.N+tk.S+tk.E+tk.W)
+        self.quantify_export_button.bind("<Enter>",lambda event: self.status.set("quantify, plot and export selected composit spectrum, its baseline and baseline corrected standard spectra scaled by their fitting coefficient, only within quantification wavenumbers"))
+        self.quantify_export_button.bind("<Leave>",lambda event: self.status.set(""))
         ## tab2
         self.tab2.columnconfigure(0, weight=1)
         self.labelframe_baseline=ttk.LabelFrame(self.tab2,text="Baseline Settings")
@@ -120,8 +123,6 @@ class Application():
         self.tab3.columnconfigure(0, weight=1)
         self.quantification_text = tk.Text(self.tab3)
         self.quantification_text.grid(row=0,column=0,sticky=tk.N+tk.S+tk.W+tk.E)
-    def ExportCsvClick(self):
-        
     def BrowseClick(self):
         filepaths = filedialog.askopenfilenames()
         for filepath in filepaths:
@@ -131,33 +132,77 @@ class Application():
         if len(indices) == 0:
             self.status.set("Select at least one spectrum to remove!")
         else:
-            self.statusset("")            
+            self.status.set("")            
         for index in reversed(indices):
             self.listbox.delete(index)
     def PlotClick(self):
+        spectra = self.GetSelectedSpectra()
+        if len(spectra) > 0:
+            IR_fitter.PlotAbsorbances(spectra)
+            self.status.set("Plotted {} spectra".format(len(spectra)))
+    def ExportCsvClick(self):
+        spectra = self.GetSelectedSpectra()
+        if len(spectra) > 0:
+            directory = filedialog.askdirectory(title="Select folder to which files get exported")
+            for spectrum in spectra:
+                with open(os.path.join(directory,spectrum.name+".csv"),'w') as f:
+                    f.write("wavenumber / cm^-1 , absorbance" + os.linesep)
+                    for k,A in zip(spectrum.wavenumber_cut,spectrum.absorbance_cut):
+                        f.write("{:e},{:e}{}".format(k,A,os.linesep))
+            self.status.set("Exported {} spectra as .csv".format(len(spectra)))
+    def QuantifyPlotClick(self):
+        results, composite_spectrum, standard_spectra,k_min,k_max = self.GetQuantification()
+        if results == None:
+            return
+        self.note.select(2)
+        IR_fitter.PlotSuperposition(results,composite_spectrum, standard_spectra,
+                          k_min=k_min,
+                          k_max=k_max,
+                          interactive_plot=True)
+    def QuantifyExportClick(self):
+        results, composite_spectrum, standard_spectra,k_min,k_max = self.GetQuantification()
+        if results == None:
+            return 0
+        IR_fitter.PlotSuperposition(results,composite_spectrum, standard_spectra,
+                          k_min=k_min,
+                          k_max=k_max,
+                          interactive_plot=True)
+        filepath = filedialog.asksaveasfilename()
+        if filepath == None:
+            self.status.set('Export aborted.')
+        else:
+            with open(filepath,'w') as f:
+                f.write("wavenumber / cm^-1 , absorbance_{}, {}".format(composite_spectrum.name,','.join(['absorbance_{}*{:.0f}nm/{:.0f}nm'.format(s.name,results['d_vec'][m],s.thickness) for m,s in enumerate(standard_spectra)])  + os.linesep))
+                for k in range(len(composite_spectrum.wavenumber_cut)):
+                    values = [composite_spectrum.wavenumber_cut[k],composite_spectrum.absorbance_cut[k],*[s.absorbance_cut[k]*results['d_vec'][m] for m,s in enumerate(standard_spectra)]]
+                    f.write(','.join(['{:e}'.format(v) for v in values]) + os.linesep)
+            self.status.set(filepath + ' exported.')
+    def GetSelectedSpectra(self):
         indices = self.listbox.curselection()
+        spectra = []
         for index in indices:
             filepath = str(self.listbox.get(index))
-            name = os.path.split(filepath)[1]
+            name = os.path.splitext(os.path.split(filepath)[1])[0]
             self.status.set("Estimate baseline of {} ...".format(name))
             self.statusline.update()
-            spectrum = self.GetSpectrumWithCurrentSettings(name,filepath)
-            self.status.set("Done".format(name))
-            IR_fitter.PlotAbsorbances(spectrum)
+            spectra.append(self.GetSpectrumWithCurrentSettings(name,filepath))
         if len(indices) == 0:
-            self.status.set("No spectrum chosen")
-    def QuantifyClick(self):
+            self.status.set("No spectrum chosen")  
+        return spectra
+    def GetQuantification(self):
+        error_return_value = [None]*5
         index = self.listbox.curselection()
         if len(index) != 1:
             self.status.set("Error: Select exactly one composite spectrum to quantify!")
+            return error_return_value
         else:
             k_min = float(eval(self.quantification_kmin.get()))
             k_max = float(eval(self.quantification_kmax.get()))
             standard_spectra = []
             filepaths = list(self.listbox.get(0,tk.END))
             if len(filepaths) < 2:
-                self.status.set("Error: there are no standard spectra")
-                return 1
+                self.status.set("Error: There are no standard spectra")
+                return error_return_value
             else:
                 self.status.set("")
             composition_filepath = filepaths.pop(index[0])
@@ -167,8 +212,8 @@ class Application():
                 self.statusline.update()
                 chunks = name.split('_')
                 if len(chunks) < 2 or chunks[-1] != "nm":
-                    self.status.set("Error: name of standard has to have _thickness_nm at the end, where thickness is a number")
-                    return 1
+                    self.status.set("Error: Name of standard has to have _thickness_nm at the end, where thickness is a number")
+                    return error_return_value
                 thickness = float(chunks[-2])
                 spectrum = self.GetSpectrumWithCurrentSettings(name,filepath,thickness=thickness,normalize_by_thickness=True)
                 standard_spectra.append(spectrum)
@@ -186,11 +231,7 @@ class Application():
             self.quantification_text.insert(tk.END,os.linesep.join(txt_list+[os.linesep]*2))
             self.status.set("Done")
             self.statusline.update()
-            self.note.select(2)
-            IR_fitter.PlotSuperposition(results,composite_spectrum, standard_spectra,
-                              k_min=k_min,
-                              k_max=k_max,
-                              interactive_plot=True)
+            return results, composite_spectrum, standard_spectra,k_min,k_max
     def GetSpectrumWithCurrentSettings(self,name,filepath,thickness=None,normalize_by_thickness=False):
         spectrum = IR_fitter.absorbance_spectrum(name=name,
                    datafile_path=filepath,
