@@ -32,7 +32,14 @@ class absorbance_spectrum():
         self.normalize_by_thickness = normalize_by_thickness
         self.k_min,self.k_max = k_min, k_max
         self.r, self.p = r, p
-        self.wavenumber, self.absorbance = self.ReadJcampFile()
+        if os.path.splitext(self.datafile_path)[1] == '.DX':
+            self.wavenumber, self.absorbance = self.ReadJcampFile()
+        elif os.path.splitext(self.datafile_path)[1] == '.DPT':
+            self.wavenumber, self.absorbance = self.ReadDataPointTable()
+        elif os.path.splitext(self.datafile_path)[1] == '.csv':
+            self.wavenumber, self.absorbance = self.ReadCsvFile()
+        else:
+            raise Exception("Wrong file type: " + self.datafile_path)
         if self.normalize_by_thickness:
             self.absorbance /= self.thickness
         self.transmittance = 10**(-self.absorbance)
@@ -53,6 +60,14 @@ class absorbance_spectrum():
         for n,line in enumerate(lines):
             wavenumber[n],absorbance[n] = line.split()[0:2]   
         return wavenumber, absorbance 
+    def ReadCsvFile(self):
+        with open(self.datafile_path) as f:
+            lines = f.read().splitlines()
+        wavenumber = np.zeros(len(lines)-1)
+        absorbance = np.zeros(len(lines)-1)
+        for n,line in enumerate(lines[1:]):
+            wavenumber[n],absorbance[n] = line.split(',')[0:2]   
+        return wavenumber, absorbance         
     def ReadJcampFile(self):
         jcamp_dict = jcamp.JCAMP_reader(self.datafile_path)
         if jcamp_dict['x'][1]<jcamp_dict['x'][0]: # wavenumber will be used ascending during script execution
