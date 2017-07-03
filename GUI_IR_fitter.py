@@ -167,7 +167,7 @@ class Application():
                           k_min=k_min,
                           k_max=k_max,
                           interactive_plot=True)
-        filepath = filedialog.asksaveasfilename(filetypes=[('comma separated values file','.csv')])
+        filepath = filedialog.asksaveasfilename(filetypes=[('comma separated values file','.csv')],initialfile='quantified_{}.csv'.format(composite_spectrum.name))
         if filepath == None:
             self.status.set('Export aborted.')
         else:
@@ -217,7 +217,7 @@ class Application():
                 thickness = float(chunks[-2])
                 spectrum = self.GetSpectrumWithCurrentSettings(name,filepath,thickness=thickness,normalize_by_thickness=True)
                 standard_spectra.append(spectrum)
-            composition_name = os.path.split(composition_filepath)[1]
+            composition_name = os.path.splitext(os.path.split(composition_filepath)[1])[0]
             self.status.set("Estimating baseline of {} ...".format(composition_name))
             self.statusline.update()
             composite_spectrum = self.GetSpectrumWithCurrentSettings(composition_name,composition_filepath)
