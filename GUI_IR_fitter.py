@@ -68,7 +68,7 @@ class Application():
         self.quantify_export_button.bind("<Leave>",lambda event: self.status.set(""))
         ## tab2
         self.tab2.columnconfigure(0, weight=1)
-        self.labelframe_baseline=tk.LabelFrame(self.tab2,text="Baseline Settings",bg='grey')
+        self.labelframe_baseline=tk.LabelFrame(self.tab2,text="Baseline Settings",bg='grey94')
         self.labelframe_baseline.grid(row=0,column=0,sticky=tk.N+tk.S+tk.E+tk.W)
         self.labelframe_baseline.rowconfigure(0,weight=1)
         self.labelframe_baseline.rowconfigure(1,weight=1)
@@ -78,27 +78,27 @@ class Application():
         self.labelframe_baseline.columnconfigure(3,weight=1)
         self.labelframe_baseline.columnconfigure(4,weight=1)
         self.labelframe_baseline.columnconfigure(5,weight=1)
-        tk.Label(self.labelframe_baseline,text="k_min = ",bg='grey').grid(row=0,column=0,sticky=tk.N+tk.S+tk.E)
+        tk.Label(self.labelframe_baseline,text="k_min = ",bg='grey94').grid(row=0,column=0,sticky=tk.N+tk.S+tk.E)
         self.baseline_kmin = tk.Entry(self.labelframe_baseline)
         self.baseline_kmin.insert(0,"800")
         self.baseline_kmin.grid(row=0,column=1,sticky=tk.N+tk.S+tk.E+tk.W)
-        tk.Label(self.labelframe_baseline,text="1/cm",bg='grey').grid(row=0,column=2,sticky=tk.N+tk.S+tk.W)
-        tk.Label(self.labelframe_baseline,text="k_max = ",bg='grey').grid(row=0,column=3,sticky=tk.N+tk.S+tk.E)
+        tk.Label(self.labelframe_baseline,text="1/cm",bg='grey94').grid(row=0,column=2,sticky=tk.N+tk.S+tk.W)
+        tk.Label(self.labelframe_baseline,text="k_max = ",bg='grey94').grid(row=0,column=3,sticky=tk.N+tk.S+tk.E)
         self.baseline_kmax = tk.Entry(self.labelframe_baseline)
         self.baseline_kmax.insert(0,"np.inf")
         self.baseline_kmax.grid(row=0,column=4,sticky=tk.N+tk.S+tk.E+tk.W)
-        tk.Label(self.labelframe_baseline,text="1/cm",bg='grey').grid(row=0,column=5,sticky=tk.N+tk.S+tk.W)
+        tk.Label(self.labelframe_baseline,text="1/cm",bg='grey94').grid(row=0,column=5,sticky=tk.N+tk.S+tk.W)
 
-        tk.Label(self.labelframe_baseline,text="r = ",bg='grey').grid(row=1,column=0,sticky=tk.N+tk.S+tk.E)
+        tk.Label(self.labelframe_baseline,text="r = ",bg='grey94').grid(row=1,column=0,sticky=tk.N+tk.S+tk.E)
         self.r = tk.Entry(self.labelframe_baseline)
         self.r.insert(0,"1E8")
         self.r.grid(row=1,column=1,sticky=tk.N+tk.S+tk.E+tk.W)
-        tk.Label(self.labelframe_baseline,text="p = ",bg='grey').grid(row=1,column=3,sticky=tk.N+tk.S+tk.E)
+        tk.Label(self.labelframe_baseline,text="p = ",bg='grey94').grid(row=1,column=3,sticky=tk.N+tk.S+tk.E)
         self.p = tk.Entry(self.labelframe_baseline)
         self.p.insert(0,"0.005")
         self.p.grid(row=1,column=4,sticky=tk.N+tk.S+tk.E+tk.W)        
         
-        self.labelframe_quantification=tk.LabelFrame(self.tab2,text="Quantification Settings",background='grey')
+        self.labelframe_quantification=tk.LabelFrame(self.tab2,text="Quantification Settings",background='grey94')
         self.labelframe_quantification.grid(row=1,column=0,sticky=tk.N+tk.S+tk.E+tk.W)
         self.labelframe_quantification.rowconfigure(0,weight=1)
         self.labelframe_quantification.columnconfigure(0,weight=1)
@@ -108,16 +108,16 @@ class Application():
         self.labelframe_quantification.columnconfigure(4,weight=1)
         self.labelframe_quantification.columnconfigure(5,weight=1)        
         
-        tk.Label(self.labelframe_quantification,text="k_min = ",bg='grey').grid(row=0,column=0,sticky=tk.N+tk.S+tk.E)
+        tk.Label(self.labelframe_quantification,text="k_min = ",bg='grey94').grid(row=0,column=0,sticky=tk.N+tk.S+tk.E)
         self.quantification_kmin = tk.Entry(self.labelframe_quantification)
         self.quantification_kmin.insert(0,"1000")
         self.quantification_kmin.grid(row=0,column=1,sticky=tk.N+tk.S+tk.E+tk.W)
-        tk.Label(self.labelframe_quantification,text="1/cm",bg='grey').grid(row=0,column=2,sticky=tk.N+tk.S+tk.W)
-        tk.Label(self.labelframe_quantification,text="k_max = ",bg='grey').grid(row=0,column=3,sticky=tk.N+tk.S+tk.E)
+        tk.Label(self.labelframe_quantification,text="1/cm",bg='grey94').grid(row=0,column=2,sticky=tk.N+tk.S+tk.W)
+        tk.Label(self.labelframe_quantification,text="k_max = ",bg='grey94').grid(row=0,column=3,sticky=tk.N+tk.S+tk.E)
         self.quantification_kmax = tk.Entry(self.labelframe_quantification)
         self.quantification_kmax.insert(0,"2000")
         self.quantification_kmax.grid(row=0,column=4,sticky=tk.N+tk.S+tk.E+tk.W)
-        tk.Label(self.labelframe_quantification,text="1/cm",bg='grey').grid(row=0,column=5,sticky=tk.N+tk.S+tk.W)
+        tk.Label(self.labelframe_quantification,text="1/cm",bg='grey94').grid(row=0,column=5,sticky=tk.N+tk.S+tk.W)
         #tab3
         self.tab3.rowconfigure(0, weight=1)
         self.tab3.columnconfigure(0, weight=1)
@@ -146,9 +146,9 @@ class Application():
             directory = filedialog.askdirectory(title="Select folder to which files get exported")
             for spectrum in spectra:
                 with open(os.path.join(directory,spectrum.name+".csv"),'w') as f:
-                    f.write("wavenumber / cm^-1 , absorbance" + os.linesep)
+                    f.write("wavenumber / cm^-1 , absorbance\n")
                     for k,A in zip(spectrum.wavenumber_cut,spectrum.absorbance_cut):
-                        f.write("{:e},{:e}{}".format(k,A,os.linesep))
+                        f.write("{:e},{:e}\n".format(k,A))
             self.status.set("Exported {} spectra as .csv".format(len(spectra)))
     def QuantifyPlotClick(self):
         results, composite_spectrum, standard_spectra,k_min,k_max = self.GetQuantification()
@@ -167,15 +167,15 @@ class Application():
                           k_min=k_min,
                           k_max=k_max,
                           interactive_plot=True)
-        filepath = filedialog.asksaveasfilename()
+        filepath = filedialog.asksaveasfilename(filetypes=[('comma separated values file','.csv')])
         if filepath == None:
             self.status.set('Export aborted.')
         else:
             with open(filepath,'w') as f:
-                f.write("wavenumber / cm^-1 , absorbance_{}, {}".format(composite_spectrum.name,','.join(['absorbance_{}*{:.0f}nm/{:.0f}nm'.format(s.name,results['d_vec'][m],s.thickness) for m,s in enumerate(standard_spectra)])  + os.linesep))
+                f.write("wavenumber / cm^-1 , absorbance_{}, {}".format(composite_spectrum.name,','.join(['absorbance_{}*{:.0f}nm/{:.0f}nm'.format(s.name,results['d_vec'][m],s.thickness) for m,s in enumerate(standard_spectra)])  + '\n'))
                 for k in range(len(composite_spectrum.wavenumber_cut)):
                     values = [composite_spectrum.wavenumber_cut[k],composite_spectrum.absorbance_cut[k],*[s.absorbance_cut[k]*results['d_vec'][m] for m,s in enumerate(standard_spectra)]]
-                    f.write(','.join(['{:e}'.format(v) for v in values]) + os.linesep)
+                    f.write(','.join(['{:e}'.format(v) for v in values]) + '\n')
             self.status.set(filepath + ' exported.')
     def GetSelectedSpectra(self):
         indices = self.listbox.curselection()
@@ -228,7 +228,7 @@ class Application():
                 txt_list.append('d_{} = {}'.format(s.name,IR_fitter.GetErrorString(d_vec[k],d_error_vec[k])))
                 txt_list.append('F_{} = {}'.format(s.name,IR_fitter.GetErrorString(F_vec[k],F_error_vec[k])))
             txt_list.append('d = {}'.format(IR_fitter.GetErrorString(np.sum(d_vec),np.sum(d_error_vec)))) 
-            self.quantification_text.insert(tk.END,os.linesep.join(txt_list+[os.linesep]*2))
+            self.quantification_text.insert(tk.END,'\n'.join(txt_list+['\n']*2))
             self.status.set("Done")
             self.statusline.update()
             return results, composite_spectrum, standard_spectra,k_min,k_max
