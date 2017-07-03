@@ -146,9 +146,9 @@ class Application():
             directory = filedialog.askdirectory(title="Select folder to which files get exported")
             for spectrum in spectra:
                 with open(os.path.join(directory,spectrum.name+".csv"),'w') as f:
-                    f.write("wavenumber / cm^-1 , absorbance\n")
-                    for k,A in zip(spectrum.wavenumber_cut,spectrum.absorbance_cut):
-                        f.write("{:e},{:e}\n".format(k,A))
+                    f.write("wavenumber / cm^-1 , absorbance, baseline\n")
+                    for k,A,b in zip(spectrum.wavenumber_cut,spectrum.absorbance_cut,spectrum.baseline):
+                        f.write("{:e},{:e},{:e}\n".format(k,A,b))
             self.status.set("Exported {} spectra as .csv".format(len(spectra)))
     def QuantifyPlotClick(self):
         results, composite_spectrum, standard_spectra,k_min,k_max = self.GetQuantification()
