@@ -172,9 +172,9 @@ class Application():
             self.status.set('Export aborted.')
         else:
             with open(filepath,'w') as f:
-                f.write("wavenumber / cm^-1 , absorbance_{}, {}".format(composite_spectrum.name,','.join(['absorbance_{}*{:.0f}nm/{:.0f}nm'.format(s.name,results['d_vec'][m],s.thickness) for m,s in enumerate(standard_spectra)])  + '\n'))
+                f.write("wavenumber / cm^-1, absorbance_{}, baseline_{}, {}".format(composite_spectrum.name,composite_spectrum.name,','.join(['absorbance_{}*{:.0f}nm/{:.0f}nm'.format(s.name,results['d_vec'][m],s.thickness) for m,s in enumerate(standard_spectra)])  + '\n'))
                 for k in range(len(composite_spectrum.wavenumber_cut)):
-                    values = [composite_spectrum.wavenumber_cut[k],composite_spectrum.absorbance_cut[k],*[s.absorbance_cut[k]*results['d_vec'][m] for m,s in enumerate(standard_spectra)]]
+                    values = [composite_spectrum.wavenumber_cut[k],composite_spectrum.absorbance_cut[k],composite_spectrum.baseline[k],*[(s.absorbance_cut[k]-s.baseline[k])*results['d_vec'][m] for m,s in enumerate(standard_spectra)]]
                     f.write(','.join(['{:e}'.format(v) for v in values]) + '\n')
             self.status.set(filepath + ' exported.')
     def GetSelectedSpectra(self):
