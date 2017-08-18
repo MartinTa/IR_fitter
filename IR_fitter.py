@@ -52,6 +52,12 @@ class absorbance_spectrum():
         self.wavenumber_cut_fit = None
         self.absorbance_corr_cut_fit = None
         self.baseline_cut_fit = None
+    def TurnAscending(self,wavenumber_,absorbance_):
+        if wavenumber_[1]<wavenumber_[0]: # wavenumber will be used ascending during script execution
+            wavenumber,absorbance = np.flipud(wavenumber_), np.flipud(absorbance_)
+        else:
+            wavenumber,absorbance = wavenumber_, absorbance_
+        return wavenumber, absorbance 
     def ReadDataPointTable(self):
         with open(self.datafile_path) as f:
             lines = f.read().splitlines()
@@ -59,22 +65,22 @@ class absorbance_spectrum():
         absorbance = np.zeros(len(lines))
         for n,line in enumerate(lines):
             wavenumber[n],absorbance[n] = line.split()[0:2]   
-        return wavenumber, absorbance 
+        return self.TurnAscending(wavenumber, absorbance)
     def ReadCsvFile(self):
         with open(self.datafile_path) as f:
             lines = f.read().splitlines()
         wavenumber = np.zeros(len(lines)-1)
         absorbance = np.zeros(len(lines)-1)
         for n,line in enumerate(lines[1:]):
-            wavenumber[n],absorbance[n] = line.split(',')[0:2]   
-        return wavenumber, absorbance         
+            wavenumber[n],absorbance[n] = line.split(',')[0:2]  
+        return self.TurnAscending(wavenumber, absorbance)    
     def ReadJcampFile(self):
         jcamp_dict = jcamp.JCAMP_reader(self.datafile_path)
         if jcamp_dict['x'][1]<jcamp_dict['x'][0]: # wavenumber will be used ascending during script execution
             wavenumber,absorbance = np.flipud(jcamp_dict['x']), np.flipud(jcamp_dict['y'])
         else:
             wavenumber,absorbance = jcamp_dict['x'], jcamp_dict['y']
-        return wavenumber, absorbance 
+        return self.TurnAscending(wavenumber, absorbance)
     def GetBaselineAls(self,i_max=100):
         A = self.absorbance_cut
         L = len(A)
@@ -95,14 +101,17 @@ class absorbance_spectrum():
     
 def GetErrorString(value,error):
     #Returns string giving value +/- error both with a precision determined by the first two significant digits of the error value
-    error_to_two_digit = round(error, 1-int(np.floor(np.log10(abs(error)))))
-    ndigits = 1-int(np.floor(np.log10(error_to_two_digit)))
-    value_rounded = round(value,ndigits)
-    error_rounded = round(error,ndigits)
-    value_str = ('{:.' + str(max(ndigits,0)) + 'f}').format(value_rounded)
-    error_str = ('{:.' + str(max(ndigits,0)) + 'f}').format(error_rounded)
-    string = value_str + ' +/- ' + error_str
-    return string
+    if error > 10**10:
+        return str(value) + ' +/- inf' 
+    else:
+        error_to_two_digit = round(error, 1-int(np.floor(np.log10(abs(error)))))
+        ndigits = 1-int(np.floor(np.log10(error_to_two_digit)))
+        value_rounded = round(value,ndigits)
+        error_rounded = round(error,ndigits)
+        value_str = ('{:.' + str(max(ndigits,0)) + 'f}').format(value_rounded)
+        error_str = ('{:.' + str(max(ndigits,0)) + 'f}').format(error_rounded)
+        string = value_str + ' +/- ' + error_str
+        return string
     
 def GetFontsAndSetMPLproperties():
     font = {'size' : 11}
@@ -159,7 +168,10 @@ def GetCoefficients(composite_sample, pure_samples,k_min=-np.inf,k_max=np.inf):
     x,rnorm = optimize.nnls(basis_functions,composite_sample.absorbance_corr_cut_fit)
     S = np.sum((np.dot(basis_functions,x)-composite_sample.absorbance_corr_cut_fit)**2)
     n,m = basis_functions.shape
-    x_var = np.abs(S/(n-m)*np.diag(np.linalg.inv(np.dot(basis_functions.transpose(),basis_functions))))
+    try:
+        x_var = np.abs(S/(n-m)*np.diag(np.linalg.inv(np.dot(basis_functions.transpose(),basis_functions))))
+    except:
+        x_var = np.inf*np.ones_like(x)
     return x, np.sqrt(x_var)  
       
 def CalculateSuperposition(composite_sample, pure_samples,thickness_error_absolute=1,thickness_error_relative=0.01,k_min = 1000, k_max = 2000): 
