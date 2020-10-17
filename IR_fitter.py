@@ -151,7 +151,7 @@ def PlotAbsorbances(samples,plot_baseline=True,plot_original=True,plot_bscorrect
         if plot_bscorrected:
             ax0.plot(s.wavenumber_cut,(s.absorbance_cut-s.baseline)*1E4,label=s.name+'_corrected') 
         legend = plt.legend()    
-        legend.draggable(True)
+        legend.set_draggable(True)
         plt.title(s.name)
         ax0.set_xlabel('wavenumber / cm$^{-1}$')
         ax0.set_ylabel('absorbance / 10$^{-4}$nm$^{-1}$')
@@ -215,7 +215,7 @@ def PlotSuperposition(fit_results,composite_sample, pure_samples,k_min=None,k_ma
     if k_max != None:
         ax0.set_xlim([ax0.get_xlim()[0],k_max])
     legend = ax0.legend(loc='best',prop=legend_font,handlelength=3)
-    legend.draggable(True)
+    legend.set_draggable(True)
     ax0.invert_xaxis()
     if output_folder != None:
         if not os.path.exists(output_folder):
